@@ -1,0 +1,58 @@
+name: Cypress Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Install Node.js dependencies (npm ci is faster than npm install in CI)
+      - name: Install dependencies
+        run: npm ci
+
+      # 3. Run Cypress tests using the official GitHub Action
+      #    This action also installs Cypress binary if it's not cached.
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          # Run headlessly (no browser window) — required in CI.
+          # Uses Electron by default. To use Chrome: add `browser: chrome`
+          browser: electron
+          # Enable video recording in CI so you can review failing runs.
+          config: video=true
+        env:
+          # Pass any secret credentials from GitHub Actions secrets.
+          # Add secrets in: GitHub repo → Settings → Secrets and variables → Actions
+          # Then reference them here: CYPRESS_key maps to Cypress.env('key')
+          # CYPRESS_password: ${{ secrets.SAUCEDEMO_PASSWORD }}
+          CYPRESS_standard_user: standard_user
+          CYPRESS_password: secret_sauce
+          CYPRESS_saucedemo_url: https://www.saucedemo.com
+          CYPRESS_api_url: https://jsonplaceholder.typicode.com
+
+      # 4. Upload screenshots as an artifact when any test fails
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          retention-days: 7
+
+      # 5. Upload videos regardless of outcome (useful for reviewing slow/flaky tests)
+      - name: Upload videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          retention-days: 7

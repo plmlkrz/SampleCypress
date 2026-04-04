@@ -1,0 +1,22 @@
+{
+  "standard": {
+    "username": "standard_user",
+    "password": "secret_sauce",
+    "description": "A fully functional account — use this for happy-path tests"
+  },
+  "locked": {
+    "username": "locked_out_user",
+    "password": "secret_sauce",
+    "description": "Locked out by admin — login should fail with an error message"
+  },
+  "problem": {
+    "username": "problem_user",
+    "password": "secret_sauce",
+    "description": "Has UI bugs (broken images, wrong sort) — useful for negative tests"
+  },
+  "invalid": {
+    "username": "not_a_real_user",
+    "password": "wrong_password",
+    "description": "Credentials that don't exist — should always fail"
+  }
+}

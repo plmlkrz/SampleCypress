@@ -1,0 +1,17 @@
+{
+  "name": "cypress-automation-training",
+  "version": "1.0.0",
+  "description": "A Cypress automation training framework — from basics through Page Object Model, API testing, and CI/CD",
+  "private": true,
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:module1": "cypress run --spec 'cypress/e2e/module1-basics/**'",
+    "cy:run:module2": "cypress run --spec 'cypress/e2e/module2-ui-interactions/**'",
+    "cy:run:module3": "cypress run --spec 'cypress/e2e/module3-advanced/**'",
+    "cy:run:module4": "cypress run --spec 'cypress/e2e/module4-pom/**'"
+  },
+  "devDependencies": {
+    "cypress": "^13.13.0"
+  }
+}

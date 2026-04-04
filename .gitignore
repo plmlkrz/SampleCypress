@@ -1,0 +1,30 @@
+# ─── Node.js ────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Cypress Artifacts ──────────────────────────────────────────────────────
+# Generated on each run — large binary files, not useful in version control
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# ─── Sensitive Configuration ────────────────────────────────────────────────
+# Put real credentials here instead of cypress.config.js
+cypress.env.json
+
+# ─── OS / Editor ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── IntelliJ IDEA ──────────────────────────────────────────────────────────
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/shelf/
+*.iml
+out/
+bin/
+
+# ─── VS Code ────────────────────────────────────────────────────────────────
+.vscode/

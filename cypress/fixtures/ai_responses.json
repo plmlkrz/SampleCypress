@@ -1,0 +1,41 @@
+{
+  "recommendation": {
+    "recommendations": [
+      {
+        "productId": "sauce-labs-backpack",
+        "productName": "Sauce Labs Backpack",
+        "score": 0.94,
+        "reason": "Highly rated by users with similar browsing patterns",
+        "tags": ["popular", "carry-all", "work"]
+      },
+      {
+        "productId": "sauce-labs-fleece-jacket",
+        "productName": "Sauce Labs Fleece Jacket",
+        "score": 0.87,
+        "reason": "Frequently purchased together with viewed items",
+        "tags": ["apparel", "warm", "popular"]
+      },
+      {
+        "productId": "sauce-labs-bolt-t-shirt",
+        "productName": "Sauce Labs Bolt T-Shirt",
+        "score": 0.81,
+        "reason": "Trending in your region",
+        "tags": ["apparel", "testing"]
+      }
+    ],
+    "model": "product-recommend-v2",
+    "requestId": "req_abc123",
+    "generatedAt": "2026-04-07T10:00:00Z"
+  },
+  "emptyRecommendation": {
+    "recommendations": [],
+    "model": "product-recommend-v2",
+    "requestId": "req_empty01",
+    "generatedAt": "2026-04-07T10:00:00Z"
+  },
+  "errorResponse": {
+    "error": "model_unavailable",
+    "message": "The recommendation model is temporarily unavailable",
+    "retryAfter": 30
+  }
+}

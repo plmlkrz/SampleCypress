@@ -9,9 +9,11 @@
     "cy:run:module1": "cypress run --spec 'cypress/e2e/module1-basics/**'",
     "cy:run:module2": "cypress run --spec 'cypress/e2e/module2-ui-interactions/**'",
     "cy:run:module3": "cypress run --spec 'cypress/e2e/module3-advanced/**'",
-    "cy:run:module4": "cypress run --spec 'cypress/e2e/module4-pom/**'"
+    "cy:run:module4": "cypress run --spec 'cypress/e2e/module4-pom/**'",
+    "cy:run:module5": "cypress run --spec 'cypress/e2e/module5-ai-qa/**'"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
     "cypress": "^13.13.0"
   }
 }

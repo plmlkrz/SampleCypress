@@ -28,6 +28,9 @@ module.exports = defineConfig({
     // In production, use cypress.env.json (git-ignored) or CI secrets instead.
     standard_user: 'standard_user',
     password: 'secret_sauce',
+    // AI pillar — set via cypress.env.json (git-ignored) or --env flag.
+    // Never hardcode a real key here.
+    anthropic_api_key: '',
   },
 
   e2e: {
@@ -41,9 +44,41 @@ module.exports = defineConfig({
     supportFile: 'cypress/support/e2e.js',
 
     setupNodeEvents(on, config) {
-      // Register Node event listeners here (plugins, tasks, code coverage, etc.)
-      // Example:
-      // on('task', { log(message) { console.log(message); return null } })
+      // ── cy.task('askAI') ────────────────────────────────────────────────────
+      // Pillar 2: mid-test LLM evaluation bridge.
+      // Called from specs as: cy.task('askAI', { prompt, context })
+      // Returns: string (the model's text response)
+      //
+      // If no API key is configured, returns a sentinel string so specs can
+      // skip gracefully rather than throw.
+      on('task', {
+        async askAI({ prompt, context = '' }) {
+          const apiKey = config.env.anthropic_api_key
+          if (!apiKey) {
+            return '[AI_SKIPPED: no anthropic_api_key configured]'
+          }
+          // Lazy-require so a missing SDK doesn't break non-AI test runs.
+          const Anthropic = require('@anthropic-ai/sdk')
+          const client = new Anthropic.default({ apiKey })
+          try {
+            const message = await client.messages.create({
+              model: 'claude-sonnet-4-6',
+              max_tokens: 256,
+              messages: [
+                {
+                  role: 'user',
+                  content: context
+                    ? `Context:\n${context}\n\nQuestion:\n${prompt}`
+                    : prompt,
+                },
+              ],
+            })
+            return message.content[0].text
+          } catch (err) {
+            return `[AI_SKIPPED: API error — ${err.message}]`
+          }
+        },
+      })
       return config
     },
   },

@@ -55,3 +55,38 @@ Cypress.Commands.add('apiGet', (endpoint) => {
     failOnStatusCode: false, // Let the test assert the status code itself
   })
 })
+
+// ─── cy.aiAssert(text, criteria) ─────────────────────────────────────────────
+// Uses the Claude API (via cy.task) to evaluate whether `text` meets `criteria`.
+// This is an LLM-powered soft assertion — useful for content quality checks that
+// cannot be expressed as exact string matches (tone, clarity, appropriateness).
+//
+// If no API key is configured, the assertion is skipped with a log notice instead
+// of failing — this keeps CI green in environments without an API key.
+//
+// Example:
+//   cy.aiAssert('A carry-all bag for testers', 'sounds like a product description')
+Cypress.Commands.add('aiAssert', (text, criteria) => {
+  const prompt = [
+    `You are a QA evaluator. Answer only "YES" or "NO" with a one-sentence reason.`,
+    `Does the following text meet this criterion: "${criteria}"?`,
+    ``,
+    `Text to evaluate:`,
+    `"${text}"`,
+  ].join('\n')
+
+  // timeout: 30000 overrides the 8000ms default — Claude API calls can take longer.
+  cy.task('askAI', { prompt }, { timeout: 30000 }).then((response) => {
+    if (response.startsWith('[AI_SKIPPED')) {
+      cy.log(`cy.aiAssert SKIPPED (no API key): ${criteria}`)
+      return
+    }
+
+    cy.log(`AI evaluation: ${response}`)
+
+    expect(
+      response.toUpperCase().startsWith('YES'),
+      `AI assertion failed — criterion: "${criteria}"\nAI said: ${response}`
+    ).to.be.true
+  })
+})

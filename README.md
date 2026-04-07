@@ -1,6 +1,6 @@
 # Cypress Automation Training Framework
 
-A hands-on Cypress training project structured as progressive learning modules — from the absolute basics through API testing, network interception, and the Page Object Model.
+A hands-on Cypress training project structured as progressive learning modules — from the absolute basics through API testing, network interception, the Page Object Model, and AI-assisted QA patterns.
 
 ---
 
@@ -53,13 +53,17 @@ cypress/
 │   │   ├── 09_api_testing.cy.js
 │   │   ├── 10_intercept_stub.cy.js
 │   │   └── 11_env_variables.cy.js
-│   └── module4-pom/                ← Page Object Model
-│       ├── 12_saucedemo_login.cy.js
-│       └── 13_saucedemo_shopping.cy.js
+│   ├── module4-pom/                ← Page Object Model
+│   │   ├── 12_saucedemo_login.cy.js
+│   │   └── 13_saucedemo_shopping.cy.js
+│   └── module5-ai-qa/              ← AI-assisted testing
+│       ├── 14_ai_generated.cy.js
+│       └── 15_ai_feature_testing.cy.js
 ├── fixtures/                       ← Test data (JSON)
 │   ├── users.json
 │   ├── products.json
-│   └── api_responses.json
+│   ├── api_responses.json
+│   └── ai_responses.json
 ├── pages/                          ← Page Object classes
 │   ├── LoginPage.js
 │   ├── InventoryPage.js
@@ -86,6 +90,9 @@ npm run cy:run:module3
 
 # Module 4 — Page Object Model (SauceDemo login + shopping flow)
 npm run cy:run:module4
+
+# Module 5 — AI QA (AI-generated tests, LLM-evaluated assertions)
+npm run cy:run:module5
 ```
 
 ---
@@ -118,7 +125,7 @@ npm run cy:run:module4
 | File | Concepts |
 |------|----------|
 | `09_api_testing.cy.js` | `cy.request()`, GET/POST/PUT/DELETE, query params, status codes |
-| `10_intercept_stub.cy.js` | `cy.intercept()`, `.as()`, `cy.wait()`, stubbing with fixtures |
+| `10_intercept_stub.cy.js` | `cy.intercept()`, `.as()`, `cy.wait()`, `cy.window()`, stubbing with fixtures |
 | `11_env_variables.cy.js` | `Cypress.env()`, `cypress.env.json`, `--env` CLI flag |
 
 ### Module 4 — Page Object Model
@@ -129,15 +136,23 @@ npm run cy:run:module4
 | `12_saucedemo_login.cy.js` | `LoginPage` POM, fixture-driven credentials, error scenarios |
 | `13_saucedemo_shopping.cy.js` | `InventoryPage` + `CartPage` POM, `cy.login()` custom command |
 
+### Module 5 — AI-Assisted QA
+> **Goal:** Use AI to generate tests and evaluate assertions that are hard to express with static matchers.
+
+| File | Concepts |
+|------|----------|
+| `14_ai_generated.cy.js` | AI-generated test suite, standard login scenarios |
+| `15_ai_feature_testing.cy.js` | `cy.intercept()` mocking of AI endpoints, LLM-evaluated assertions via `cy.task()` |
+
 ---
 
 ## Demo Sites
 
 | Site | Used In | Purpose |
 |------|---------|---------|
-| [the-internet.herokuapp.com](https://the-internet.herokuapp.com) | Module 1 & 2 | Rich UI element variety |
+| [the-internet.herokuapp.com](https://the-internet.herokuapp.com) | Modules 1–3 | Rich UI element variety |
 | [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com) | Module 3 | Free REST API for testing |
-| [saucedemo.com](https://www.saucedemo.com) | Module 4 | Login + shopping flow |
+| [saucedemo.com](https://www.saucedemo.com) | Modules 4–5 | Login + shopping flow |
 
 ---
 
@@ -197,6 +212,11 @@ cy.get('[type=checkbox]').check()
 cy.request('GET', 'https://api.example.com/items')
 cy.intercept('GET', '/api/items').as('getItems')
 cy.wait('@getItems')
+
+// Network Intercept (browser-side fetch required — cy.request() is not intercepted)
+cy.intercept('GET', '**/posts/*').as('getPost')
+cy.window().then((win) => win.fetch('https://api.example.com/posts/1'))
+cy.wait('@getPost')
 
 // Environment
 Cypress.env('key')          // read env var

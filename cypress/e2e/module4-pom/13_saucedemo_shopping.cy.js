@@ -58,6 +58,9 @@ describe('Module 4 | POM — SauceDemo Shopping Cart', { testIsolation: false },
       Cypress.env('password')
     )
     cy.url().should('include', '/inventory')
+    // Wait for React to finish rendering — guards tests that access the sort
+    // dropdown or other elements that appear after the URL change settles.
+    cy.get('.inventory_item').should('have.length.greaterThan', 0)
   })
 
   it('adds a single item to the cart and verifies the cart badge', () => {

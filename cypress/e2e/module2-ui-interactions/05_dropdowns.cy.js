@@ -41,7 +41,7 @@ describe('Module 2 | Dropdowns', () => {
 
     // Collect all options and verify their text values.
     cy.get('#dropdown option').then(($options) => {
-      const texts = [...$options].map((el) => el.text.trim())
+      const texts = Array.from($options).map((el) => el.text.trim())
       expect(texts).to.include('Option 1')
       expect(texts).to.include('Option 2')
     })
@@ -60,7 +60,7 @@ describe('Module 2 | Dropdowns', () => {
     // The submenu should become visible after triggering the hover.
     cy.contains('Back to JQuery UI').should('be.visible').click()
 
-    // Verify navigation occurred.
-    cy.url().should('include', 'jqueryui.com')
+    // Verify navigation occurred (link goes to /jqueryui on the same host).
+    cy.url().should('include', '/jqueryui')
   })
 })

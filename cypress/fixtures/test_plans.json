@@ -1,0 +1,166 @@
+{
+  "sampleLoginPlan": {
+    "feature": "SauceDemo login flow — valid login, locked user, and validation errors",
+    "scenarios": [
+      {
+        "id": "TC-01",
+        "title": "Successful login with standard_user redirects to inventory page",
+        "steps": [
+          "Navigate to https://www.saucedemo.com",
+          "Enter username: standard_user",
+          "Enter password: secret_sauce",
+          "Click the Login button"
+        ],
+        "expectedResult": "URL changes to /inventory.html and the page title shows 'Products'"
+      },
+      {
+        "id": "TC-02",
+        "title": "Locked-out user sees a descriptive error message",
+        "steps": [
+          "Navigate to https://www.saucedemo.com",
+          "Enter username: locked_out_user",
+          "Enter password: secret_sauce",
+          "Click the Login button"
+        ],
+        "expectedResult": "Error banner is visible with text 'Sorry, this user has been locked out.'"
+      },
+      {
+        "id": "TC-03",
+        "title": "Invalid credentials show a credentials mismatch error",
+        "steps": [
+          "Navigate to https://www.saucedemo.com",
+          "Enter username: not_a_real_user",
+          "Enter password: wrong_password",
+          "Click the Login button"
+        ],
+        "expectedResult": "Error banner contains 'Username and password do not match any user in this service'"
+      },
+      {
+        "id": "TC-04",
+        "title": "Missing username shows validation error",
+        "steps": [
+          "Navigate to https://www.saucedemo.com",
+          "Leave username blank",
+          "Enter any password",
+          "Click the Login button"
+        ],
+        "expectedResult": "Error banner contains 'Epic sadface: Username is required'"
+      },
+      {
+        "id": "TC-05",
+        "title": "Missing password shows validation error",
+        "steps": [
+          "Navigate to https://www.saucedemo.com",
+          "Enter username: standard_user",
+          "Leave password blank",
+          "Click the Login button"
+        ],
+        "expectedResult": "Error banner contains 'Epic sadface: Password is required'"
+      }
+    ],
+    "preconditions": [
+      "SauceDemo site is reachable at https://www.saucedemo.com",
+      "cypress.env.json contains standard_user and password"
+    ],
+    "fixtures": [
+      {
+        "filename": "users.json",
+        "shape": "{ standard: { username, password }, locked: { username, password }, invalid: { username, password } }"
+      }
+    ],
+    "pomActions": [
+      { "page": "LoginPage", "method": "visit()", "description": "Navigate to SauceDemo login page" },
+      { "page": "LoginPage", "method": "login(username, password)", "description": "Fill form and submit" },
+      { "page": "LoginPage", "method": "getErrorMessage()", "description": "Return error banner element for assertions" },
+      { "page": "LoginPage", "method": "dismissError()", "description": "Click the error banner close button" }
+    ],
+    "selectorHints": [
+      { "element": "Username input", "suggestedSelector": "#user-name", "strategy": "id" },
+      { "element": "Password input", "suggestedSelector": "#password", "strategy": "id" },
+      { "element": "Login button", "suggestedSelector": "#login-button", "strategy": "id" },
+      { "element": "Error banner", "suggestedSelector": "[data-test=\"error\"]", "strategy": "data-test" }
+    ],
+    "newPomMethodsNeeded": [],
+    "coverageGaps": [
+      "problem_user login behavior (broken images, wrong sort order)",
+      "Session persistence after browser refresh",
+      "Login with keyboard (pressing Enter instead of clicking Login button)"
+    ]
+  },
+
+  "sampleCartPlan": {
+    "feature": "Inventory page cart management — add/remove items, badge count",
+    "scenarios": [
+      {
+        "id": "TC-01",
+        "title": "Adding a product to the cart increments the cart badge",
+        "steps": [
+          "Log in as standard_user",
+          "On the inventory page, click 'Add to cart' on 'Sauce Labs Backpack'",
+          "Observe the cart badge in the top-right corner"
+        ],
+        "expectedResult": "Cart badge appears and shows count '1'"
+      },
+      {
+        "id": "TC-02",
+        "title": "Adding two products shows badge count of 2",
+        "steps": [
+          "Log in as standard_user",
+          "Add 'Sauce Labs Backpack' to cart",
+          "Add 'Sauce Labs Bike Light' to cart"
+        ],
+        "expectedResult": "Cart badge shows '2'"
+      },
+      {
+        "id": "TC-03",
+        "title": "Removing a product from the inventory page decrements the badge",
+        "steps": [
+          "Log in as standard_user",
+          "Add 'Sauce Labs Backpack' to cart",
+          "Click 'Remove' on the same product"
+        ],
+        "expectedResult": "Cart badge disappears (no items in cart)"
+      },
+      {
+        "id": "TC-04",
+        "title": "Cart page shows all added products",
+        "steps": [
+          "Log in as standard_user",
+          "Add 'Sauce Labs Backpack' to cart",
+          "Click the cart icon",
+          "Verify the cart page"
+        ],
+        "expectedResult": "Cart page lists 'Sauce Labs Backpack' as a cart item"
+      }
+    ],
+    "preconditions": [
+      "User is logged in as standard_user",
+      "Inventory page is fully loaded (6 products visible)"
+    ],
+    "fixtures": [
+      {
+        "filename": "products.json",
+        "shape": "{ items: [{ name, price, description }] }"
+      }
+    ],
+    "pomActions": [
+      { "page": "InventoryPage", "method": "addToCart(productName)", "description": "Click Add to cart for a named product" },
+      { "page": "InventoryPage", "method": "removeFromCart(productName)", "description": "Click Remove for a named product" },
+      { "page": "InventoryPage", "method": "getCartBadge()", "description": "Return cart badge element" },
+      { "page": "InventoryPage", "method": "goToCart()", "description": "Click the cart link to navigate to cart" },
+      { "page": "CartPage", "method": "verifyItemInCart(productName)", "description": "Assert product is listed in cart" }
+    ],
+    "selectorHints": [
+      { "element": "Cart badge", "suggestedSelector": ".shopping_cart_badge", "strategy": "class" },
+      { "element": "Cart link", "suggestedSelector": ".shopping_cart_link", "strategy": "class" },
+      { "element": "Product name", "suggestedSelector": ".inventory_item_name", "strategy": "class" },
+      { "element": "Sort dropdown", "suggestedSelector": "[data-test=\"product_sort_container\"]", "strategy": "data-test" }
+    ],
+    "newPomMethodsNeeded": [],
+    "coverageGaps": [
+      "Cart state persistence across page navigation",
+      "Maximum cart capacity behavior",
+      "Adding all 6 products at once"
+    ]
+  }
+}

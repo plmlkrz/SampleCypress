@@ -10,7 +10,14 @@
     "cy:run:module2": "cypress run --spec 'cypress/e2e/module2-ui-interactions/**'",
     "cy:run:module3": "cypress run --spec 'cypress/e2e/module3-advanced/**'",
     "cy:run:module4": "cypress run --spec 'cypress/e2e/module4-pom/**'",
-    "cy:run:module5": "cypress run --spec 'cypress/e2e/module5-ai-qa/**'"
+    "cy:run:module5": "cypress run --spec 'cypress/e2e/module5-ai-qa/**'",
+    "cy:run:module5:agents": "cypress run --spec 'cypress/e2e/module5-ai-qa/16_ai_planning_agent.cy.js,cypress/e2e/module5-ai-qa/17_ai_self_healing.cy.js'",
+    "ai:plan": "node scripts/plan-tests.js",
+    "ai:generate": "node scripts/generate-spec-v2.js",
+    "ai:heal": "node scripts/heal-selectors.js",
+    "cy:run:module5-ex1": "cypress run --spec cypress/e2e/module5-ai-qa/16_ai_output_validation.cy.js",
+    "cy:run:module5-ex2": "cypress run --spec cypress/e2e/module5-ai-qa/17_ai_intercept_scenarios.cy.js",
+    "cy:run:module5-ex3": "cypress run --spec cypress/e2e/module5-ai-qa/18_confidence_score_validation.cy.js"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.27.0",

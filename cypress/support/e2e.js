@@ -8,6 +8,46 @@
 // Import all custom commands defined in commands.js
 import './commands'
 
+// ─── Passive Self-Healing Hook ────────────────────────────────────────────────
+// When a test fails with a selector-not-found error, automatically ask the
+// Self-Healing Agent for alternative selectors and log them to the Cypress
+// timeline. The original error is always re-thrown so the test still fails —
+// this hook is diagnostic only, it does NOT suppress failures.
+//
+// Requires anthropic_api_key to be configured; silently skips when absent.
+Cypress.on('fail', (err) => {
+  // Only attempt healing if an API key is present
+  if (!Cypress.env('anthropic_api_key')) throw err
+
+  // Extract the selector from standard Cypress "element not found" messages
+  const match = err.message.match(/cy\.get\(['"`](.+?)['"`]\)/)
+  if (match) {
+    const selector = match[1]
+    // cy.task is available here because we are inside a Cypress event handler.
+    // Use the raw task (not the cy.suggestSelectors command) to avoid chaining issues.
+    cy.task(
+      'suggestSelectors',
+      { selector, errorMessage: err.message },
+      { timeout: 30000 }
+    ).then((response) => {
+      if (response && !response.startsWith('[AI_SKIPPED')) {
+        cy.log(`Self-Healing Agent — suggestions for "${selector}":`)
+        try {
+          const { suggestions = [] } = JSON.parse(response)
+          suggestions.forEach((s, i) =>
+            cy.log(`  [${i + 1}] ${s.selector} (${s.confidence}) — ${s.explanation}`)
+          )
+        } catch {
+          cy.log(response)
+        }
+      }
+    })
+  }
+
+  // Re-throw so the test still fails as expected
+  throw err
+})
+
 // ─── Global Hooks ─────────────────────────────────────────────────────────────
 // Cypress 12+ enables `testIsolation: true` by default, which automatically
 // clears cookies, sessionStorage, and localStorage before each test and

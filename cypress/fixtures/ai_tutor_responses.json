@@ -1,0 +1,52 @@
+{
+  "tutorResponse": {
+    "messageId": "msg_k001",
+    "response": "Great question! The Pythagorean theorem states that a² + b² = c², where c is the hypotenuse of a right triangle. For example, if a = 3 and b = 4, then c = √(9 + 16) = √25 = 5. Let me walk you through the steps: first, square both legs; then add them together; finally, take the square root of the sum.",
+    "confidence": 0.97,
+    "references": [
+      {
+        "articleId": "pythag-001",
+        "title": "Pythagorean theorem",
+        "url": "/math/geometry/pythagorean-theorem"
+      }
+    ],
+    "hints": [
+      "Draw a right triangle and label the sides a, b, and c",
+      "Remember: c is always the longest side (hypotenuse)"
+    ],
+    "timestamp": "2026-04-10T10:00:00Z",
+    "model": "khanmigo-v1"
+  },
+  "emptyInputResponse": {
+    "messageId": "msg_k002",
+    "response": "It looks like your message was empty. Could you tell me what topic you'd like help with? I'm here to help with math, science, history, and more!",
+    "confidence": 1.0,
+    "references": [],
+    "hints": [],
+    "timestamp": "2026-04-10T10:01:00Z",
+    "model": "khanmigo-v1"
+  },
+  "offTopicResponse": {
+    "messageId": "msg_k003",
+    "response": "I'm Khanmigo, your learning assistant! I'm here to help with academic topics like math, science, history, and literature. Is there a subject from school you'd like to explore together?",
+    "confidence": 0.99,
+    "references": [],
+    "hints": [],
+    "timestamp": "2026-04-10T10:02:00Z",
+    "model": "khanmigo-v1"
+  },
+  "guardrailResponse": {
+    "messageId": "msg_k004",
+    "response": "I'm not able to help with that. I'm designed to assist with learning and education. Let's focus on something we can learn together — what subject are you studying right now?",
+    "confidence": 1.0,
+    "references": [],
+    "hints": [],
+    "timestamp": "2026-04-10T10:03:00Z",
+    "model": "khanmigo-v1"
+  },
+  "errorResponse": {
+    "error": "service_unavailable",
+    "message": "AI tutor is temporarily unavailable. Please try again shortly.",
+    "retryAfter": 30
+  }
+}

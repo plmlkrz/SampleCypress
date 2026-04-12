@@ -11,6 +11,7 @@
     "cy:run:module3": "cypress run --spec 'cypress/e2e/module3-advanced/**'",
     "cy:run:module4": "cypress run --spec 'cypress/e2e/module4-pom/**'",
     "cy:run:module5": "cypress run --spec 'cypress/e2e/module5-ai-qa/**'",
+    "cy:run:module6": "cypress run --spec 'cypress/e2e/module6-elearning-ai/**'",
     "cy:run:module5:agents": "cypress run --spec 'cypress/e2e/module5-ai-qa/16_ai_planning_agent.cy.js,cypress/e2e/module5-ai-qa/17_ai_self_healing.cy.js'",
     "ai:plan": "node scripts/plan-tests.js",
     "ai:generate": "node scripts/generate-spec-v2.js",

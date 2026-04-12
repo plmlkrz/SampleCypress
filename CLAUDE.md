@@ -13,6 +13,7 @@ npm run cy:run:module2           # run only Module 2 specs
 npm run cy:run:module3           # run only Module 3 specs
 npm run cy:run:module4           # run only Module 4 specs
 npm run cy:run:module5           # run only Module 5 specs
+npm run cy:run:module6           # run only Module 6 specs
 
 # Run a single spec file
 npx cypress run --spec 'cypress/e2e/module4-pom/13_saucedemo_shopping.cy.js'
@@ -31,6 +32,7 @@ This is a **Cypress 13 training framework** with no application code — only te
 | 3 — Advanced | `jsonplaceholder.typicode.com` (via `Cypress.env('api_url')`) | `cy.request`, `cy.intercept`, env vars |
 | 4 — POM | `saucedemo.com` (via `Cypress.env('saucedemo_url')`) | Page Object Model, login/cart flow |
 | 5 — AI QA | `saucedemo.com` (via `Cypress.env('saucedemo_url')`) | mocking AI endpoints, LLM-evaluated assertions |
+| 6 — eLearning AI | `khanacademy.org` (via `Cypress.env('khanacademy_url')`) | AI tutor mocking, LLM quality assertions, latency SLA |
 
 ### Page Object Model (Modules 4–5)
 

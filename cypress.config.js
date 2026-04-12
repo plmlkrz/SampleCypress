@@ -23,6 +23,7 @@ module.exports = defineConfig({
   // Override at runtime:  cypress run --env key=value
   env: {
     saucedemo_url: 'https://www.saucedemo.com',
+    khanacademy_url: 'https://www.khanacademy.org',
     api_url: 'https://jsonplaceholder.typicode.com',
     // Credentials are stored here for convenience in a training project.
     // In production, use cypress.env.json (git-ignored) or CI secrets instead.
@@ -52,6 +53,13 @@ module.exports = defineConfig({
       // If no API key is configured, returns a sentinel string so specs can
       // skip gracefully rather than throw.
       on('task', {
+        // Print a message to the terminal during headless runs.
+        // Usage: cy.task('log', 'your message here')
+        log(message) {
+          console.log(message)
+          return null
+        },
+
         async askAI({ prompt, context = '' }) {
           const apiKey = config.env.anthropic_api_key
           if (!apiKey) {

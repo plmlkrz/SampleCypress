@@ -31,6 +31,11 @@ import InventoryPage from '../../pages/InventoryPage'
 
 describe('Module 5 | AI Feature Testing Patterns', { testIsolation: false }, () => {
   before(() => {
+    cy.task('log', '\n=== MODULE 5 | SPEC 15: AI Feature Testing Patterns ===')
+    cy.task('log', 'Pattern 1: cy.intercept mocking')
+    cy.task('log', 'Pattern 2: schema assertions')
+    cy.task('log', 'Pattern 3: LLM-evaluated assertions')
+    cy.task('log', '=======================================================\n')
     // Log in once for the entire suite.
     LoginPage.visit()
     LoginPage.login(
@@ -58,62 +63,63 @@ describe('Module 5 | AI Feature Testing Patterns', { testIsolation: false }, () 
   // ── Pattern 1 & 2: Mock AI Endpoint + Schema Assertions ─────────────────────
 
   it('intercepts the AI recommendation endpoint and validates response schema', () => {
-    // Pattern 1: Register the intercept BEFORE the action that triggers it.
-    // We mock a hypothetical endpoint that an AI-powered version of SauceDemo
-    // would call to fetch personalised product recommendations.
+    cy.task('log', '\n--- PATTERN 1+2: Mock endpoint + schema assertions ---')
     cy.fixture('ai_responses').then((aiData) => {
+      cy.task('log', 'intercept registered: GET **/api/ai/recommend**')
+      cy.task('log', `fixture body — model: ${aiData.recommendation.model}, requestId: ${aiData.recommendation.requestId}`)
+      cy.task('log', `recommendations count: ${aiData.recommendation.recommendations.length}`)
+
       cy.intercept('GET', '**/api/ai/recommend**', {
         statusCode: 200,
         body: aiData.recommendation,
       }).as('aiRecommend')
 
-      // Trigger the intercepted request from the browser context (not cy.request,
-      // which runs in Node.js and bypasses cy.intercept). The fetch rejects on a
-      // network error from the real server — that is fine; cy.intercept has already
-      // served the fixture before the real request reaches the network.
       cy.window().then((win) => {
         return win
           .fetch(`${Cypress.env('saucedemo_url')}/api/ai/recommend`)
-          .catch(() => {})  // real server 404s — swallow so the test can continue
+          .catch(() => {})
       })
 
       cy.wait('@aiRecommend').then((interception) => {
         const body = interception.response.body
+        cy.task('log', '--- INTERCEPTED RESPONSE ---')
+        cy.task('log', `  model:        ${body.model}`)
+        cy.task('log', `  requestId:    ${body.requestId}`)
+        cy.task('log', `  generatedAt:  ${body.generatedAt}`)
+        cy.task('log', `  recs count:   ${body.recommendations.length}`)
+        cy.task('log', `  first item:   ${body.recommendations[0]?.productName} (score: ${body.recommendations[0]?.score})`)
+        cy.task('log', '---------------------------')
 
-        // Pattern 2: Schema assertions — shape and types, not content.
-        // These assertions pass regardless of which specific products the AI
-        // recommends, making them resilient to model updates.
-
-        // Top-level structure
+        // Pattern 2: Schema assertions
         expect(body).to.have.property('recommendations')
         expect(body).to.have.property('model')
         expect(body).to.have.property('requestId')
         expect(body).to.have.property('generatedAt')
-
-        // Array contract
         expect(body.recommendations).to.be.an('array')
         expect(body.recommendations.length).to.be.greaterThan(0)
-        expect(body.recommendations.length).to.be.lessThan(11)  // max 10 recs
+        expect(body.recommendations.length).to.be.lessThan(11)
 
-        // Per-item schema — check the first item as a representative sample
         const first = body.recommendations[0]
         expect(first).to.have.all.keys('productId', 'productName', 'score', 'reason', 'tags')
         expect(first.productId).to.be.a('string').and.not.be.empty
         expect(first.productName).to.be.a('string').and.not.be.empty
-        expect(first.score).to.be.a('number').and.be.within(0, 1)  // confidence 0–1
+        expect(first.score).to.be.a('number').and.be.within(0, 1)
         expect(first.reason).to.be.a('string').and.not.be.empty
         expect(first.tags).to.be.an('array').and.have.length.greaterThan(0)
-
-        // Metadata format contracts
         expect(body.model).to.be.a('string').and.not.be.empty
-        expect(body.requestId).to.match(/^req_/)                    // ID prefix format
-        expect(body.generatedAt).to.match(/^\d{4}-\d{2}-\d{2}T/)   // ISO 8601
+        expect(body.requestId).to.match(/^req_/)
+        expect(body.generatedAt).to.match(/^\d{4}-\d{2}-\d{2}T/)
+
+        cy.task('log', 'schema assertions: PASS')
       })
     })
   })
 
   it('handles an empty recommendation list while maintaining valid schema', () => {
+    cy.task('log', '\n--- PATTERN 2: Empty recommendation list ---')
     cy.fixture('ai_responses').then((aiData) => {
+      cy.task('log', 'intercept registered: returning emptyRecommendation fixture')
+
       cy.intercept('GET', '**/api/ai/recommend**', {
         statusCode: 200,
         body: aiData.emptyRecommendation,
@@ -127,22 +133,25 @@ describe('Module 5 | AI Feature Testing Patterns', { testIsolation: false }, () 
 
       cy.wait('@emptyRecommend').then((interception) => {
         const body = interception.response.body
+        cy.task('log', `  recommendations: [] (length: ${body.recommendations.length})`)
+        cy.task('log', `  model:           ${body.model}`)
+        cy.task('log', `  requestId:       ${body.requestId}`)
 
-        // Schema must remain valid even when the AI returns no results.
-        // This tests that the app doesn't break on an empty recommendations array.
         expect(body).to.have.property('recommendations')
         expect(body.recommendations).to.be.an('array').and.have.length(0)
-
-        // Metadata fields must still be present — the contract doesn't change
-        // just because the model found nothing to recommend.
         expect(body.model).to.be.a('string').and.not.be.empty
         expect(body.requestId).to.be.a('string').and.not.be.empty
+
+        cy.task('log', 'schema assertions: PASS (empty list, metadata still present)')
       })
     })
   })
 
   it('handles a model-unavailable 503 error with the correct error schema', () => {
+    cy.task('log', '\n--- PATTERN 2: 503 error response schema ---')
     cy.fixture('ai_responses').then((aiData) => {
+      cy.task('log', 'intercept registered: returning 503 errorResponse fixture')
+
       cy.intercept('GET', '**/api/ai/recommend**', {
         statusCode: 503,
         body: aiData.errorResponse,
@@ -155,31 +164,30 @@ describe('Module 5 | AI Feature Testing Patterns', { testIsolation: false }, () 
       })
 
       cy.wait('@aiError').then((interception) => {
-        expect(interception.response.statusCode).to.eq(503)
-
         const body = interception.response.body
+        cy.task('log', `  statusCode:  ${interception.response.statusCode}`)
+        cy.task('log', `  error:       ${body.error}`)
+        cy.task('log', `  message:     ${body.message}`)
+        cy.task('log', `  retryAfter:  ${body.retryAfter}s`)
 
-        // Error response schema contract — must be consistent so the app can
-        // display the right message and honour the retry-after value.
+        expect(interception.response.statusCode).to.eq(503)
         expect(body).to.have.all.keys('error', 'message', 'retryAfter')
         expect(body.error).to.be.a('string').and.not.be.empty
         expect(body.message).to.be.a('string').and.not.be.empty
         expect(body.retryAfter).to.be.a('number').and.be.greaterThan(0)
+
+        cy.task('log', 'schema assertions: PASS')
       })
     })
   })
 
   // ── Pattern 3: LLM-Evaluated Assertions ──────────────────────────────────────
-  // These tests use cy.aiAssert() to evaluate qualitative properties of real
-  // content on the page. They call the Claude API mid-test via cy.task('askAI').
-  //
-  // Without a configured anthropic_api_key, these skip (logged) rather than fail.
 
   it('evaluates product descriptions for professional tone using AI assertion', () => {
-    // Read a real product description off the SauceDemo inventory page.
-    // We're testing the *quality* of copy — the kind of thing an AI content
-    // generator might produce, and that humans struggle to assert on with regex.
+    cy.task('log', '\n--- PATTERN 3: LLM-evaluated assertion — product description ---')
     cy.get('.inventory_item_desc').first().invoke('text').then((descText) => {
+      cy.task('log', `  evaluating: "${descText.trim().slice(0, 100)}..."`)
+      cy.task('log', `  criteria:   "reads like a professional retail product description"`)
       cy.aiAssert(
         descText.trim(),
         'reads like a professional retail product description (coherent, not offensive, not gibberish)'
@@ -188,9 +196,11 @@ describe('Module 5 | AI Feature Testing Patterns', { testIsolation: false }, () 
   })
 
   it('evaluates all product names are appropriate for a professional store', () => {
+    cy.task('log', '\n--- PATTERN 3: LLM-evaluated assertion — all product names ---')
     cy.get('.inventory_item_name').then(($names) => {
       const names = [...$names].map((el) => el.innerText.trim()).join(', ')
-
+      cy.task('log', `  evaluating: "${names}"`)
+      cy.task('log', `  criteria:   "appropriate, professional product names for an e-commerce store"`)
       cy.aiAssert(
         names,
         'is a list of appropriate, professional product names suitable for an e-commerce store'
@@ -199,28 +209,23 @@ describe('Module 5 | AI Feature Testing Patterns', { testIsolation: false }, () 
   })
 
   it('uses cy.task directly to ask AI an open-ended question about page content', () => {
-    // Pattern 3b: raw cy.task usage (bypassing cy.aiAssert) to demonstrate the
-    // underlying plumbing and show more complex prompt construction.
+    cy.task('log', '\n--- PATTERN 3b: Raw cy.task askAI call ---')
     cy.get('.inventory_item').its('length').then((count) => {
-      cy.task(
-        'askAI',
-        {
-          prompt: `A product catalog page shows ${count} items. Is this a reasonable number of items for a single-page e-commerce inventory? Reply with YES or NO followed by one sentence of reasoning.`,
-        },
-        { timeout: 30000 }
-      ).then((response) => {
+      const prompt = `A product catalog page shows ${count} items. Is this a reasonable number of items for a single-page e-commerce inventory? Reply with YES or NO followed by one sentence of reasoning.`
+      cy.task('log', `  item count: ${count}`)
+      cy.task('log', `  prompt:     "${prompt}"`)
+
+      cy.task('askAI', { prompt }, { timeout: 30000 }).then((response) => {
         if (response.startsWith('[AI_SKIPPED')) {
-          cy.log('AI task skipped — no API key configured')
+          cy.task('log', `  result:     SKIPPED (no API key)`)
           return
         }
-
-        // Log the reasoning so it's visible in the Cypress runner timeline.
-        cy.log(`AI says: ${response}`)
-
+        cy.task('log', `  AI says:    ${response}`)
         expect(
           response.toUpperCase().startsWith('YES'),
           `Expected AI to confirm ${count} items is a reasonable catalog size, got: "${response}"`
         ).to.be.true
+        cy.task('log', '  assertion:  PASS')
       })
     })
   })

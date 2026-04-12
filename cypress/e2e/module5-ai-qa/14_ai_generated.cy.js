@@ -16,6 +16,9 @@ import LoginPage from '../../pages/LoginPage'
 
 describe('Module 5 | AI-Generated — SauceDemo Login', { testIsolation: false }, () => {
   before(() => {
+    cy.task('log', '\n=== MODULE 5 | SPEC 14: AI-Generated Login Tests ===')
+    cy.task('log', `target: ${Cypress.env('saucedemo_url')}`)
+    cy.task('log', '=====================================================\n')
     // Cold-load SauceDemo once. The beforeEach handles all subsequent resets.
     LoginPage.visit()
   })
@@ -34,41 +37,62 @@ describe('Module 5 | AI-Generated — SauceDemo Login', { testIsolation: false }
 
   it('logs in successfully with standard_user credentials', () => {
     cy.fixture('users').then((users) => {
+      cy.task('log', `\n[TEST] logs in successfully with standard_user credentials`)
+      cy.task('log', `  username: ${users.standard.username}`)
+      cy.task('log', `  password: ${users.standard.password}`)
+      cy.task('log', `  expected: redirect to /inventory, "Products" heading`)
       LoginPage.login(users.standard.username, users.standard.password)
       cy.url().should('include', '/inventory')
       cy.get('.title').should('have.text', 'Products')
+      cy.task('log', `  result:   PASS — landed on /inventory`)
     })
   })
 
   it('shows a locked-out error for locked_out_user', () => {
     cy.fixture('users').then((users) => {
+      cy.task('log', `\n[TEST] shows a locked-out error for locked_out_user`)
+      cy.task('log', `  username: ${users.locked.username}`)
+      cy.task('log', `  expected: error message containing "locked out"`)
       LoginPage.login(users.locked.username, users.locked.password)
       LoginPage.getErrorMessage()
         .should('be.visible')
         .and('contain.text', 'Sorry, this user has been locked out')
+      cy.task('log', `  result:   PASS — locked-out error displayed`)
     })
   })
 
   it('shows an error for invalid credentials', () => {
     cy.fixture('users').then((users) => {
+      cy.task('log', `\n[TEST] shows an error for invalid credentials`)
+      cy.task('log', `  username: ${users.invalid.username}`)
+      cy.task('log', `  expected: error message containing "do not match"`)
       LoginPage.login(users.invalid.username, users.invalid.password)
       LoginPage.getErrorMessage()
         .should('be.visible')
         .and('contain.text', 'Username and password do not match')
+      cy.task('log', `  result:   PASS — invalid credentials error displayed`)
     })
   })
 
   it('shows a validation error when username is missing', () => {
+    cy.task('log', `\n[TEST] shows a validation error when username is missing`)
+    cy.task('log', `  username: (empty)`)
+    cy.task('log', `  expected: error message "Username is required"`)
     LoginPage.login('', 'secret_sauce')
     LoginPage.getErrorMessage()
       .should('be.visible')
       .and('contain.text', 'Username is required')
+    cy.task('log', `  result:   PASS — username required error displayed`)
   })
 
   it('shows a validation error when password is missing', () => {
+    cy.task('log', `\n[TEST] shows a validation error when password is missing`)
+    cy.task('log', `  password: (empty)`)
+    cy.task('log', `  expected: error message "Password is required"`)
     LoginPage.login('standard_user', '')
     LoginPage.getErrorMessage()
       .should('be.visible')
       .and('contain.text', 'Password is required')
+    cy.task('log', `  result:   PASS — password required error displayed`)
   })
 })

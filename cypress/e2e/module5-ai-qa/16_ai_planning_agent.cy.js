@@ -16,6 +16,10 @@ import LoginPage from '../../pages/LoginPage'
 describe('Module 5 | Planning Agent', { testIsolation: false }, () => {
   // ── Setup ──────────────────────────────────────────────────────────────────
   before(() => {
+    cy.task('log', '\n=== MODULE 5 | SPEC 16: Planning Agent ===')
+    cy.task('log', 'Test 1: Planning Agent → JSON test plan')
+    cy.task('log', 'Test 2: Planning Agent → Script Generation Agent → spec source')
+    cy.task('log', '==========================================\n')
     LoginPage.visit()
   })
 
@@ -30,12 +34,12 @@ describe('Module 5 | Planning Agent', { testIsolation: false }, () => {
   })
 
   // ── Test 1: Planning Agent in isolation ────────────────────────────────────
-  // Shows how to call cy.task('planTests') directly, inspect the JSON output,
-  // and use the AI_SKIPPED pattern to keep CI green without an API key.
   it('generates a structured test plan for the cart feature', () => {
-    // The Planning Agent reads the POM files you specify in pomContext so it
-    // knows which selectors and methods already exist — no need to repeat them
-    // in the feature description.
+    cy.task('log', '\n--- TEST 1: Planning Agent → structured JSON test plan ---')
+    cy.task('log', 'feature: inventory page cart management')
+    cy.task('log', 'pomContext: InventoryPage.js, CartPage.js')
+    cy.task('log', 'calling cy.task("planTests")...')
+
     cy.task(
       'planTests',
       {
@@ -46,7 +50,6 @@ describe('Module 5 | Planning Agent', { testIsolation: false }, () => {
           - User can remove a product from the inventory page using the "Remove" button.
           - The cart badge disappears when all items are removed.
         `.trim(),
-        // Pass relative paths so the task can read the files via fs.readFileSync
         pomContext: [
           'cypress/pages/InventoryPage.js',
           'cypress/pages/CartPage.js',
@@ -57,49 +60,53 @@ describe('Module 5 | Planning Agent', { testIsolation: false }, () => {
       },
       { timeout: 60000 }
     ).then((response) => {
-      // The sentinel pattern: if no API key, skip gracefully instead of failing
       if (response.startsWith('[AI_SKIPPED')) {
-        cy.log(`Planning Agent SKIPPED — ${response}`)
-        cy.log('Set anthropic_api_key in cypress.env.json to run AI assertions.')
+        cy.task('log', `SKIPPED — ${response}`)
+        cy.task('log', 'Set anthropic_api_key in cypress.env.json to run AI assertions.')
         return
       }
 
-      // Parse the JSON plan and log a summary to the Cypress timeline
       let plan
       try {
         plan = JSON.parse(response)
       } catch {
-        cy.log('WARNING: Claude returned non-JSON. Logging raw output.')
-        cy.log(response)
+        cy.task('log', 'WARNING: Claude returned non-JSON. Logging raw output.')
+        cy.task('log', response)
         return
       }
 
-      cy.log(`Planning Agent produced ${plan.scenarios?.length ?? 0} scenario(s)`)
-      cy.log(`Feature: ${plan.feature}`)
+      cy.task('log', `\nPlan received:`)
+      cy.task('log', `  feature:        ${plan.feature}`)
+      cy.task('log', `  scenarios:      ${plan.scenarios?.length ?? 0}`)
+      cy.task('log', `  preconditions:  ${plan.preconditions?.length ?? 0}`)
+      cy.task('log', `  fixtures:       ${plan.fixtures?.length ?? 0}`)
+      cy.task('log', `  pomActions:     ${plan.pomActions?.length ?? 0}`)
+      cy.task('log', `  coverageGaps:   ${plan.coverageGaps?.length ?? 0}`)
 
       if (plan.scenarios?.length) {
-        plan.scenarios.forEach((s) => cy.log(`  [${s.id}] ${s.title}`))
+        cy.task('log', '\n  Scenarios:')
+        plan.scenarios.forEach((s) => cy.task('log', `    [${s.id}] ${s.title}`))
       }
       if (plan.coverageGaps?.length) {
-        cy.log(`Coverage gaps identified: ${plan.coverageGaps.join('; ')}`)
+        cy.task('log', '\n  Coverage gaps:')
+        plan.coverageGaps.forEach((g) => cy.task('log', `    - ${g}`))
       }
 
-      // Structural assertion — the plan should have the required keys
       expect(plan).to.have.all.keys(
         'feature', 'scenarios', 'preconditions', 'fixtures',
         'pomActions', 'selectorHints', 'newPomMethodsNeeded', 'coverageGaps'
       )
       expect(plan.scenarios).to.be.an('array').with.length.greaterThan(0)
       expect(plan.scenarios[0]).to.have.all.keys('id', 'title', 'steps', 'expectedResult')
+      cy.task('log', '\nschema assertions: PASS')
     })
   })
 
   // ── Test 2: Full AI pipeline — Plan → Generate ─────────────────────────────
-  // Chains the Planning Agent output directly into the Script Generation Agent.
-  // In practice you would write the spec to disk via generate-spec-v2.js;
-  // here we log the source so the Cypress timeline shows what was produced.
   it('chains Planning Agent into Script Generation Agent to produce spec source', () => {
-    // Step 1: Generate a plan for a simple login scenario
+    cy.task('log', '\n--- TEST 2: Plan → Generate pipeline ---')
+    cy.task('log', 'Step 1: calling planTests for locked_out_user login scenario...')
+
     cy.task(
       'planTests',
       {
@@ -109,7 +116,7 @@ describe('Module 5 | Planning Agent', { testIsolation: false }, () => {
       { timeout: 60000 }
     ).then((planResponse) => {
       if (planResponse.startsWith('[AI_SKIPPED')) {
-        cy.log(`Planning Agent SKIPPED — ${planResponse}`)
+        cy.task('log', `Planning Agent SKIPPED — ${planResponse}`)
         return
       }
 
@@ -117,31 +124,32 @@ describe('Module 5 | Planning Agent', { testIsolation: false }, () => {
       try {
         plan = JSON.parse(planResponse)
       } catch {
-        cy.log('Plan parsing failed — skipping generation step.')
+        cy.task('log', 'Plan parsing failed — skipping generation step.')
         return
       }
 
-      cy.log(`Plan ready: ${plan.scenarios?.length ?? 0} scenario(s) — feeding into Script Generation Agent`)
+      cy.task('log', `Plan ready: ${plan.scenarios?.length ?? 0} scenario(s)`)
+      cy.task('log', 'Step 2: feeding plan into generateScript...')
 
-      // Step 2: Feed the plan into the Script Generation Agent
       cy.task(
         'generateScript',
         { plan, targetPage: 'LoginPage' },
         { timeout: 60000 }
       ).then((specSource) => {
         if (specSource.startsWith('[AI_SKIPPED')) {
-          cy.log(`Script Generation Agent SKIPPED — ${specSource}`)
+          cy.task('log', `Script Generation Agent SKIPPED — ${specSource}`)
           return
         }
 
-        cy.log(`Generated spec (${specSource.length} chars) — first 300 chars preview:`)
-        cy.log(specSource.slice(0, 300) + (specSource.length > 300 ? '…' : ''))
+        cy.task('log', `\nGenerated spec: ${specSource.length} characters`)
+        cy.task('log', '\n--- SPEC PREVIEW (first 400 chars) ---')
+        cy.task('log', specSource.slice(0, 400) + (specSource.length > 400 ? '\n...' : ''))
+        cy.task('log', '--------------------------------------')
 
-        // Structural smoke-check: the generated source should look like a Cypress spec
         expect(specSource).to.include('describe(')
         expect(specSource).to.include('it(')
-        // The agent should respect our conventions
         expect(specSource).to.match(/testIsolation:\s*false/)
+        cy.task('log', 'structural assertions: PASS (describe, it, testIsolation: false)')
       })
     })
   })

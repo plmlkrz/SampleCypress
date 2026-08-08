@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+<!-- Last audited: 2026-08-07 -->
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Commands
@@ -69,7 +71,7 @@ Do not add `cy.visit()` or `cy.reload()` in those specs' `beforeEach` — it wil
 
 ### AI bridge (`cypress.config.js` → `setupNodeEvents`)
 
-`cy.task('askAI', { prompt, context? })` is registered in `setupNodeEvents`. It calls the Anthropic API using `@anthropic-ai/sdk` (model: `claude-sonnet-4-6`, max 256 tokens) and returns the model's text. If `anthropic_api_key` is empty, it returns the sentinel string `[AI_SKIPPED: no anthropic_api_key configured]` — callers check for this prefix to skip rather than fail.
+`cy.task('askAI', { prompt, context? })` is registered in `setupNodeEvents`. It calls the Anthropic API using `@anthropic-ai/sdk` (model: `claude-sonnet-5`, max 256 tokens) and returns the model's text. If `anthropic_api_key` is empty, it returns the sentinel string `[AI_SKIPPED: no anthropic_api_key configured]` — callers check for this prefix to skip rather than fail.
 
 ### Environment variables (`cypress.config.js`)
 

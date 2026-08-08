@@ -99,11 +99,12 @@ async function generateSpec() {
   const client = new Anthropic.default({ apiKey })
 
   console.log('Calling Claude API to generate Cypress spec...')
-  console.log(`Model: claude-sonnet-4-6 | Output: ${OUTPUT_PATH}\n`)
+  console.log(`Model: claude-sonnet-5 | Output: ${OUTPUT_PATH}\n`)
 
   const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+    model: 'claude-sonnet-5',
     max_tokens: 2048,
+    thinking: { type: 'disabled' },
     system: SYSTEM_PROMPT,
     messages: [
       {

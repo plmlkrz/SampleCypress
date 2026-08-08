@@ -25,7 +25,7 @@ const Anthropic = require('@anthropic-ai/sdk')
 const fs        = require('fs')
 const path      = require('path')
 
-const MODEL      = 'claude-sonnet-4-6'
+const MODEL      = 'claude-sonnet-5'
 const MAX_TOKENS = 2048
 const POM_DIR    = path.resolve(__dirname, '../cypress/pages')
 const OUTPUT_DIR = path.resolve(__dirname, '../cypress/e2e/module5-ai-qa')
@@ -147,6 +147,7 @@ async function main() {
     const message = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
+      thinking: { type: 'disabled' },
       system: buildSystemPrompt(pomFiles),
       messages: [{ role: 'user', content: userContent }],
     })

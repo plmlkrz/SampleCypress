@@ -70,8 +70,9 @@ module.exports = defineConfig({
           const client = new Anthropic.default({ apiKey })
           try {
             const message = await client.messages.create({
-              model: 'claude-sonnet-4-6',
+              model: 'claude-sonnet-5',
               max_tokens: 256,
+              thinking: { type: 'disabled' },
               messages: [
                 {
                   role: 'user',
@@ -136,8 +137,9 @@ Output ONLY valid JSON matching this exact schema — no markdown fences, no pro
 
           try {
             const message = await client.messages.create({
-              model: 'claude-sonnet-4-6',
+              model: 'claude-sonnet-5',
               max_tokens: 2048,
+              thinking: { type: 'disabled' },
               system: systemPrompt,
               messages: [{ role: 'user', content: userMessage }],
             })
@@ -179,8 +181,9 @@ STRICT RULES:
 
           try {
             const message = await client.messages.create({
-              model: 'claude-sonnet-4-6',
+              model: 'claude-sonnet-5',
               max_tokens: 2048,
+              thinking: { type: 'disabled' },
               system: systemPrompt,
               messages: [{ role: 'user', content: userContent }],
             })
@@ -224,8 +227,9 @@ Output ONLY valid JSON, no markdown fences:
 
           try {
             const message = await client.messages.create({
-              model: 'claude-sonnet-4-6',
+              model: 'claude-sonnet-5',
               max_tokens: 1024,
+              thinking: { type: 'disabled' },
               system: systemPrompt,
               messages: [{ role: 'user', content: userContent }],
             })
@@ -276,8 +280,9 @@ Output ONLY valid JSON, no markdown fences:
 
           try {
             const message = await client.messages.create({
-              model: 'claude-sonnet-4-6',
+              model: 'claude-sonnet-5',
               max_tokens: 1024,
+              thinking: { type: 'disabled' },
               system: systemPrompt,
               messages: [{ role: 'user', content: userContent }],
             })

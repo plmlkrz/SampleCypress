@@ -23,7 +23,7 @@ const Anthropic = require('@anthropic-ai/sdk')
 const fs        = require('fs')
 const path      = require('path')
 
-const MODEL      = 'claude-sonnet-4-6'
+const MODEL      = 'claude-sonnet-5'
 const MAX_TOKENS = 1024
 
 // ── Argument parsing ──────────────────────────────────────────────────────────
@@ -198,6 +198,7 @@ async function main() {
     const message = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
+      thinking: { type: 'disabled' },
       system: buildSystemPrompt(),
       messages: [
         {
